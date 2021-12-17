@@ -90,20 +90,20 @@ class HX711:
 
 
     def readNextByte(self):
-       byteValue = 0
+        byteValue = 0
 
-       # Read bits and build the byte from top, or bottom, depending
-       # on whether we are in MSB or LSB bit mode.
-       for x in range(8):
-          if self.bit_format == 'MSB':
-             byteValue <<= 1
-             byteValue |= self.readNextBit()
-          else:
-             byteValue >>= 1              
-             byteValue |= self.readNextBit() * 0x80
+           # Read bits and build the byte from top, or bottom, depending
+           # on whether we are in MSB or LSB bit mode.
+        for _ in range(8):
+            if self.bit_format == 'MSB':
+               byteValue <<= 1
+               byteValue |= self.readNextBit()
+            else:
+               byteValue >>= 1              
+               byteValue |= self.readNextBit() * 0x80
 
-       # Return the packed byte.
-       return byteValue 
+        # Return the packed byte.
+        return byteValue 
         
 
     def readRawBytes(self):
@@ -122,9 +122,9 @@ class HX711:
 
         # HX711 Channel and gain factor are set by number of bits read
         # after 24 data bits.
-        for i in range(self.GAIN):
-           # Clock a bit out of the HX711 and throw it away.
-           self.readNextBit()
+        for _ in range(self.GAIN):
+            # Clock a bit out of the HX711 and throw it away.
+            self.readNextBit()
 
         # Release the Read Lock, now that we've finished driving the HX711
         # serial interface.
@@ -180,10 +180,7 @@ class HX711:
 
         # If we're taking a lot of samples, we'll collect them in a list, remove
         # the outliers, then take the mean of the remaining set.
-        valueList = []
-
-        for x in range(times):
-            valueList += [self.read_long()]
+        valueList = [self.read_long() for _ in range(times)]
 
         valueList.sort()
 
@@ -200,28 +197,23 @@ class HX711:
     # A median-based read method, might help when getting random value spikes
     # for unknown or CPU-related reasons
     def read_median(self, times=3):
-       if times <= 0:
-          raise ValueError("HX711::read_median(): times must be greater than zero!")
-      
-       # If times == 1, just return a single reading.
-       if times == 1:
-          return self.read_long()
+        if times <= 0:
+           raise ValueError("HX711::read_median(): times must be greater than zero!")
 
-       valueList = []
+        # If times == 1, just return a single reading.
+        if times == 1:
+           return self.read_long()
 
-       for x in range(times):
-          valueList += [self.read_long()]
+        valueList = [self.read_long() for _ in range(times)]
 
-       valueList.sort()
+        valueList.sort()
 
-       # If times is odd we can just take the centre value.
-       if (times & 0x1) == 0x1:
-          return valueList[len(valueList) / 2] 
-       else:
-          # If times is even we have to take the arithmetic mean of
-          # the two middle values.
-          midpoint = len(valueList) / 2
-          return sum(valueList[midpoint:midpoint+2]) / 2.0
+        if (times & 0x1) == 0x1:
+            return valueList[len(valueList) / 2]
+        # If times is even we have to take the arithmetic mean of
+        # the two middle values.
+        midpoint = len(valueList) / 2
+        return sum(valueList[midpoint:midpoint+2]) / 2.0
 
 
     # Compatibility function, uses channel A version
@@ -305,16 +297,12 @@ class HX711:
 
     
     def set_reading_format(self, byte_format="LSB", bit_format="MSB"):
-        if byte_format == "LSB":
-            self.byte_format = byte_format
-        elif byte_format == "MSB":
+        if byte_format in ["LSB", "MSB"]:
             self.byte_format = byte_format
         else:
             raise ValueError("Unrecognised byte_format: \"%s\"" % byte_format)
 
-        if bit_format == "LSB":
-            self.bit_format = bit_format
-        elif bit_format == "MSB":
+        if bit_format in ["LSB", "MSB"]:
             self.bit_format = bit_format
         else:
             raise ValueError("Unrecognised bitformat: \"%s\"" % bit_format)
@@ -351,8 +339,6 @@ class HX711:
         # Make sure we aren't asked to use an invalid reference unit.
         if reference_unit == 0:
             raise ValueError("HX711::set_reference_unit_A() can't accept 0 as a reference unit!")
-            return
-
         self.REFERENCE_UNIT = reference_unit
 
         
@@ -360,8 +346,6 @@ class HX711:
         # Make sure we aren't asked to use an invalid reference unit.
         if reference_unit == 0:
             raise ValueError("HX711::set_reference_unit_A() can't accept 0 as a reference unit!")
-            return
-
         self.REFERENCE_UNIT_B = reference_unit
 
 

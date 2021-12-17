@@ -41,22 +41,19 @@ class HX711:
         time.sleep(1)
 
     def convertToTwosComplement24bit(self, inputValue):
-       # HX711 has saturating logic.
-       if inputValue >= 0x7fffff:
-          return 0x7fffff
+        # HX711 has saturating logic.
+        if inputValue >= 0x7fffff:
+           return 0x7fffff
 
-       # If it's a positive value, just return it, masked with our max value.
-       if inputValue >= 0:
-          return inputValue & 0x7fffff
+        # If it's a positive value, just return it, masked with our max value.
+        if inputValue >= 0:
+           return inputValue & 0x7fffff
 
-       if inputValue < 0:
           # HX711 has saturating logic.
-          if inputValue < -0x800000:
-             inputValue = -0x800000
+        inputValue = max(inputValue, -0x800000)
+        diff = inputValue + 0x800000
 
-          diff = inputValue + 0x800000
-
-          return 0x800000 + diff
+        return 0x800000 + diff
 
         
     def convertFromTwosComplement24bit(self, inputValue):
